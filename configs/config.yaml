@@ -1,0 +1,5 @@
+dataset:
+  name: reda2000ach/medical-chatbot-doctor
+
+model:
+  name: unsloth/gemma-3-4b-it
