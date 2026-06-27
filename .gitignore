@@ -31,3 +31,5 @@ checkpoints/
 
 # Environment variables
 .env
+
+unsloth_compiled_cache/
