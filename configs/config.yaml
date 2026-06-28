@@ -1,5 +1,6 @@
 dataset:
   name: reda2000ach/medical-chatbot-doctor
+  max_length: 1024
 
 model:
   name: unsloth/gemma-3-4b-it

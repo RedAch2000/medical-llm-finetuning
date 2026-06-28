@@ -13,6 +13,7 @@ class MedicalDatasetPreprocessor:
         self.config = config
         self.dataset = None
         self.tokenizer = tokenizer
+    
 
     def run_dataset_step(self):
         """
@@ -28,7 +29,7 @@ class MedicalDatasetPreprocessor:
         # self.get_max_length_dataset()
 
         # formatting dataset
-        # self.dataset_formatter()
+        self.dataset_formatter()
 
 
     def load_dataset(self):
@@ -56,6 +57,17 @@ class MedicalDatasetPreprocessor:
 
         # remove duplicated row
         self.remove_duplicated_row()
+
+        # get max length of dataset
+        # self.get_max_length_dataset()
+
+        # changing the format of dataset
+        self.dataset_formatter()
+
+        # filtering and keeping only tokenized text where length is under 1024
+        self.remove_long_tokenized_row() 
+
+        
         
 
     def remove_unused_columns(self):
@@ -116,6 +128,7 @@ class MedicalDatasetPreprocessor:
 
 
     def get_max_length_dataset(self):
+        
         lengths = []
 
         for example in tqdm(self.dataset):
@@ -155,6 +168,34 @@ class MedicalDatasetPreprocessor:
             )
 
 
+    def remove_long_tokenized_row(self):
+        """
+        keeping text rows that their lengths are under 1024
+        """
+        def is_under_max_length(examples):
+            
+            tokenized = self.tokenizer(
+                examples["text"],
+                add_special_tokens=False,
+            )
+
+            return [
+                len(ids) <= self.config["dataset"]["max_length"]
+                for ids in tokenized["input_ids"]
+            ]     
+           
+        self.dataset = self.dataset.filter(
+            is_under_max_length,
+            batched=True,
+            batch_size=5000,
+            desc="Filtering long examples"
+        )
+        
+        print(f"*** Keeping only rows whose tokenized length is under {str(self.config['dataset']['max_length'])} ***")
+        print(self.dataset)
+
+        
+
     def dataset_formatter(self):
         """
         Format the dataset into a structure suitable for model training.
@@ -179,8 +220,13 @@ class MedicalDatasetPreprocessor:
 
             return {"text": texts}
         
-        self.dataset = self.dataset.map(formatting_prompts_func, batched=True)
-        print(self.dataset[0])
+        self.dataset = self.dataset.map(
+            formatting_prompts_func,
+            batched=True,
+            batch_size=5000,
+            desc="Formatting dataset",
+        )
+       
 
     def splitter(self):
         """

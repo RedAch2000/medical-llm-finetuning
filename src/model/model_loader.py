@@ -27,7 +27,7 @@ class ModelLoader:
         """
         self.model, self.tokenizer = FastModel.from_pretrained(
             model_name = self.config["model"]["name"],
-            max_seq_length = 2048, # Choose any for long context!
+            max_seq_length = 1024, # Choose any for long context!
             load_in_4bit = True,  # 4 bit quantization to reduce memory
             load_in_8bit = False, # [NEW!] A bit more accurate, uses 2x memory
             full_finetuning = False, # [NEW!] We have full finetuning now!
